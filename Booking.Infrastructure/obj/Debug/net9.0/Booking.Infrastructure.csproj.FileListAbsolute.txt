@@ -17,3 +17,4 @@ C:\Users\retir\Desktop\Cuarto\New folder\Booking.Infrastructure\obj\Debug\net9.0
 C:\Users\retir\Desktop\Cuarto\New folder\Booking.Infrastructure\obj\Debug\net9.0\Booking.Infrastructure.pdb
 C:\Users\retir\Desktop\Cuarto\New folder\Booking.Infrastructure\obj\Debug\net9.0\Booking.Infrastructure.genruntimeconfig.cache
 C:\Users\retir\Desktop\Cuarto\New folder\Booking.Infrastructure\obj\Debug\net9.0\ref\Booking.Infrastructure.dll
+C:\Users\retir\Desktop\Cuarto\New folder\Booking.Infrastructure\obj\Debug\net9.0\Booking.Infrastructure.sourcelink.json

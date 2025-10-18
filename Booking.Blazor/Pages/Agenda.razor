@@ -1,18 +1,36 @@
 @page "/agenda"
-@inject Booking.Blazor.Services.AppointmentClient Api
 @using Booking.Blazor.Models
-<PageTitle>Agenda</PageTitle>
+@using Booking.Blazor.Services
+@inject AppointmentClient Api
+@inject ClientsClient ClientsApi
+@inject ServicesClient ServicesApi
+
 <h3>Agenda (Día)</h3>
 
 <input type="date" @bind-value="day" />
 <button @onclick="Load">Cargar</button>
 
 <h4>Nueva cita</h4>
-<input placeholder="ClientId" @bind="clientIdStr" />
-<input placeholder="ServiceId" @bind="serviceIdStr" />
+
+<select @bind="selectedClientId">
+    <option value="">-- Cliente --</option>
+    @foreach (var c in clients)
+    {
+        <option value="@c.Id.ToString()">@c.Name</option>
+    }
+</select>
+
+<select @bind="selectedServiceId">
+    <option value="">-- Servicio --</option>
+    @foreach (var s in services)
+    {
+        <option value="@s.Id.ToString()">@s.Name (@s.DurationMin min)</option>
+    }
+</select>
+
 <input type="datetime-local" @bind-value="startLocal" />
 <input placeholder="Notes" @bind="notes" />
-<button @onclick="Create">Crear</button>
+<button @onclick="@(async () => await Create())">Crear</button>
 
 <ul>
 @foreach (var a in items)
@@ -27,42 +45,45 @@
 </ul>
 
 @code {
-    // listado
+    // Listados
     List<AppointmentVm> items = new();
+    List<ClientVm>  clients  = new();
+    List<ServiceVm> services = new();
 
-    // bindings
-    DateTime day = DateTime.Today;            // para <input type="date">
-    DateTime startLocal = DateTime.Now;       // para <input type="datetime-local">
-    string clientIdStr = "";
-    string serviceIdStr = "";
+    // Bindings
+    DateTime day = DateTime.Today;      // para el <input type="date">
+    DateTime startLocal = DateTime.Now; // para el <input type="datetime-local">
     string? notes;
+    string? selectedClientId;
+    string? selectedServiceId;
 
-    protected override async Task OnInitializedAsync() => await Load();
+    protected override async Task OnInitializedAsync()
+    {
+        clients  = await ClientsApi.GetAllAsync()  ?? new();
+        services = await ServicesApi.GetAllAsync() ?? new();
+        await Load();
+    }
 
     async Task Load()
     {
-        // la API espera UTC
         var dayUtc = DateTime.SpecifyKind(day.Date, DateTimeKind.Local).ToUniversalTime();
         items = await Api.GetByDayAsync(dayUtc) ?? new();
     }
 
     async Task Create()
     {
-        if (!Guid.TryParse(clientIdStr, out var client) || !Guid.TryParse(serviceIdStr, out var service))
-            return;
+        if (!Guid.TryParse(selectedClientId, out var client)) return;
+        if (!Guid.TryParse(selectedServiceId, out var service)) return;
 
-        // el datetime-local está en hora local → convertir a UTC para la API
         var startUtc = DateTime.SpecifyKind(startLocal, DateTimeKind.Local).ToUniversalTime();
-
         var created = await Api.CreateAsync(new CreateAppointmentVm(client, service, startUtc, notes));
-        if (created is not null) { items.Add(created); }
+        if (created is not null) items.Add(created);
     }
 
     async Task Attend(Guid id)    { await Api.AttendAsync(id);   await Load(); }
     async Task Cancel(Guid id)    { await Api.CancelAsync(id);   await Load(); }
     async Task Reschedule(Guid id)
     {
-        // ejemplo: mover 30 min desde ahora
         var plus30Utc = DateTime.UtcNow.AddMinutes(30);
         await Api.RescheduleAsync(id, plus30Utc);
         await Load();

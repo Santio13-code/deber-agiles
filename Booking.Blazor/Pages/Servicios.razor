@@ -1,0 +1,32 @@
+@page "/servicios"
+@inject Booking.Blazor.Services.ServicesClient Api
+@using Booking.Blazor.Models
+
+<h3>Servicios</h3>
+
+<input placeholder="Nombre" @bind="name" />
+<input type="number" placeholder="Duración (min)" @bind="duration" />
+<button @onclick="Create">Crear</button>
+
+<ul>
+@foreach (var s in items)
+{
+    <li>@s.Name — @s.DurationMin min — <small>@s.Id</small></li>
+}
+</ul>
+
+@code {
+    List<ServiceVm> items = new();
+    string name = ""; int duration = 30;
+
+    protected override async Task OnInitializedAsync() =>
+        items = await Api.GetAllAsync() ?? new();
+
+    async Task Create()
+    {
+        if (string.IsNullOrWhiteSpace(name) || duration <= 0) return;
+        var created = await Api.CreateAsync(new(name, duration));
+        if (created is not null) items.Add(created);
+        name = ""; duration = 30;
+    }
+}

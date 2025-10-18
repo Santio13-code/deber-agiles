@@ -6,6 +6,7 @@ using Booking.Application.DTOs;
 using Booking.Infrastructure;
 using Booking.Infrastructure.Persistence;
 using Booking.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -61,4 +62,42 @@ app.MapPost("/api/seed", async (AppDbContext db) =>
     });
 });
 
+// ---- CLIENTES ----
+app.MapGet("/api/clients", async (AppDbContext db) =>
+    await db.Clients
+        .OrderBy(c => c.Name)
+        .Select(c => new { c.Id, c.Name, c.Email, c.Phone })
+        .ToListAsync());
+
+app.MapPost("/api/clients", async (AppDbContext db, ClientDto dto) =>
+{
+    var c = new Client(dto.Name, dto.Email, dto.Phone);
+    db.Add(c);
+    await db.SaveChangesAsync();
+    return Results.Created($"/api/clients/{c.Id}", new { c.Id, c.Name, c.Email, c.Phone });
+});
+
+
+
+// ---- SERVICIOS ----
+app.MapGet("/api/services", async (AppDbContext db) =>
+    await db.Services
+        .Where(s => s.Active)
+        .OrderBy(s => s.Name)
+        .Select(s => new { s.Id, s.Name, s.DurationMin, s.Active })
+        .ToListAsync());
+
+app.MapPost("/api/services", async (AppDbContext db, ServiceDto dto) =>
+{
+    if (dto.DurationMin <= 0) return Results.BadRequest("Duration must be > 0");
+    var s = new Service(dto.Name, dto.DurationMin);
+    db.Add(s);
+    await db.SaveChangesAsync();
+    return Results.Created($"/api/services/{s.Id}", new { s.Id, s.Name, s.DurationMin, s.Active });
+});
+
+
+
 app.Run();
+record ClientDto(string Name, string? Email, string? Phone);
+record ServiceDto(string Name, int DurationMin);

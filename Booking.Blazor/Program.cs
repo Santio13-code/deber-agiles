@@ -13,5 +13,8 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://
 // registra tu cliente
 builder.Services.AddScoped<AppointmentClient>();   // <— ESTA ES LA CLAVE
 
+builder.Services.AddScoped<ClientsClient>();
+builder.Services.AddScoped<ServicesClient>();
+
 await builder.Build().RunAsync();
 
