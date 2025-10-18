@@ -1,0 +1,70 @@
+@page "/agenda"
+@inject Booking.Blazor.Services.AppointmentClient Api
+@using Booking.Blazor.Models
+<PageTitle>Agenda</PageTitle>
+<h3>Agenda (Día)</h3>
+
+<input type="date" @bind-value="day" />
+<button @onclick="Load">Cargar</button>
+
+<h4>Nueva cita</h4>
+<input placeholder="ClientId" @bind="clientIdStr" />
+<input placeholder="ServiceId" @bind="serviceIdStr" />
+<input type="datetime-local" @bind-value="startLocal" />
+<input placeholder="Notes" @bind="notes" />
+<button @onclick="Create">Crear</button>
+
+<ul>
+@foreach (var a in items)
+{
+    <li>
+        @a.StartUtc.ToLocalTime(): @a.ClientId - @a.ServiceId - estado @a.Status
+        <button @onclick="() => Attend(a.Id)">Atender</button>
+        <button @onclick="() => Cancel(a.Id)">Cancelar</button>
+        <button @onclick="() => Reschedule(a.Id)">+30min</button>
+    </li>
+}
+</ul>
+
+@code {
+    // listado
+    List<AppointmentVm> items = new();
+
+    // bindings
+    DateTime day = DateTime.Today;            // para <input type="date">
+    DateTime startLocal = DateTime.Now;       // para <input type="datetime-local">
+    string clientIdStr = "";
+    string serviceIdStr = "";
+    string? notes;
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    async Task Load()
+    {
+        // la API espera UTC
+        var dayUtc = DateTime.SpecifyKind(day.Date, DateTimeKind.Local).ToUniversalTime();
+        items = await Api.GetByDayAsync(dayUtc) ?? new();
+    }
+
+    async Task Create()
+    {
+        if (!Guid.TryParse(clientIdStr, out var client) || !Guid.TryParse(serviceIdStr, out var service))
+            return;
+
+        // el datetime-local está en hora local → convertir a UTC para la API
+        var startUtc = DateTime.SpecifyKind(startLocal, DateTimeKind.Local).ToUniversalTime();
+
+        var created = await Api.CreateAsync(new CreateAppointmentVm(client, service, startUtc, notes));
+        if (created is not null) { items.Add(created); }
+    }
+
+    async Task Attend(Guid id)    { await Api.AttendAsync(id);   await Load(); }
+    async Task Cancel(Guid id)    { await Api.CancelAsync(id);   await Load(); }
+    async Task Reschedule(Guid id)
+    {
+        // ejemplo: mover 30 min desde ahora
+        var plus30Utc = DateTime.UtcNow.AddMinutes(30);
+        await Api.RescheduleAsync(id, plus30Utc);
+        await Load();
+    }
+}
