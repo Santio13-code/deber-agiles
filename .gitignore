@@ -1,7 +1,6 @@
 # Build results
-bin/
-obj/
-
+**/bin/
+**/obj/
 # Visual Studio Code
 .vscode/
 
@@ -18,6 +17,7 @@ obj/
 **/wwwroot/_framework/
 **/staticwebassets.build.json
 **/staticwebassets.development.json
+**/staticwebassets*.json
 
 # Cache files
 *.cache
