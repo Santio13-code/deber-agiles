@@ -31,7 +31,7 @@
   padding:.65rem .8rem; border:1px dashed var(--border); border-radius: var(--radius);
   background: rgba(255,255,255,.015);
 }
-.item-time { font-weight: 700; }
+.item-time { font-weight: 700; color: var(--muted);}
 .item-meta { color: var(--txt-weak); font-size: .92rem; }
 
 .empty { color: var(--muted); padding:.5rem 0; }

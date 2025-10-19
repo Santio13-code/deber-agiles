@@ -1,0 +1,76 @@
+@page "/about"
+
+<div class="about-wrap container">
+  <section class="hero card">
+    <div class="hero-text">
+      <h1>🏥 Sistema de Gestión del Consultorio</h1>
+      <p class="lead">
+        Plataforma interna para administrar <strong>citas</strong>, <strong>clientes</strong> y <strong>servicios</strong>,
+        construida con <strong>Blazor WebAssembly</strong> y <strong>ASP.NET Core</strong> siguiendo la
+        <strong>Arquitectura Onion</strong>.
+      </p>
+
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="/agenda">Ir a Agenda</a>
+        <a class="btn btn-outline" href="/historial">Ver Historial</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Arquitectura</h2>
+      <ul class="stack">
+        <li><strong>Domain</strong> — Entidades, reglas de negocio, enums (núcleo puro).</li>
+        <li><strong>Application</strong> — Casos de uso (MediatR), validaciones, DTO/VM, mappers.</li>
+        <li><strong>Infrastructure</strong> — EF Core (DbContext, repos), persistencia y servicios externos.</li>
+        <li><strong>API</strong> — Endpoints minimal API (REST) y DI.</li>
+        <li><strong>Blazor</strong> — Frontend (WebAssembly), páginas, servicios HttpClient.</li>
+      </ul>
+      <div class="hint">
+        <span class="dot domain"></span>→ <span class="dot app"></span>→ <span class="dot infra"></span>→ <span class="dot api"></span>→ <span class="dot ui"></span>
+        <small>Dependencias solo hacia adentro (Domain no depende de nadie).</small>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Tecnologías</h2>
+      <ul class="tech">
+        <li>ASP.NET Core 9 (Minimal API)</li>
+        <li>Blazor WebAssembly</li>
+        <li>Entity Framework Core (SQL Server / SQLite)</li>
+        <li>AutoMapper, MediatR, FluentValidation</li>
+        <li>C# 12 • .NET 9</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Características</h2>
+      <ul class="list">
+        <li>Agenda por día con creación, reprogramación (+30m) y cancelación.</li>
+        <li>Estados de cita: Pendiente, Atendida, Cancelada.</li>
+        <li>Validaciones + prevención de choques de horario (HTTP 409).</li>
+        <li>Historial con agrupación por estado y paginación.</li>
+        <li>Diseño responsive y modo oscuro.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Equipo</h2>
+      <ul class="list">
+        <li>Mateo Auz</li>
+        <li>Santiago Mora</li>
+      </ul>
+      <h3 class="mt">Información institucional</h3>
+      <p class="muted">
+        Universidad Técnica de Ambato — Ingeniería de Software<br />
+        Metodologías Ágiles — 2025
+      </p>
+    </section>
+  </div>
+
+  <footer class="about-footer">
+    <div class="muted">© @DateTime.Now.Year — Sistema del Consultorio</div>
+    <div class="muted small">Build: Blazor WASM + .NET 9 • Onion Architecture</div>
+  </footer>
+</div>
