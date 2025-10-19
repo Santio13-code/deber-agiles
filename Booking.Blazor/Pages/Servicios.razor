@@ -2,31 +2,44 @@
 @inject Booking.Blazor.Services.ServicesClient Api
 @using Booking.Blazor.Models
 
-<h3>Servicios</h3>
+<div class="servicios-wrap">
+  <div class="servicios-form">
+    <div class="label mb-2">Nuevo servicio</div>
+    <div class="grid servicios-grid">
+      <input class="input" placeholder="Nombre" @bind="name" />
+      <input type="number" class="input" placeholder="Duración (min)" @bind="duration" />
+    </div>
+    <div class="mt-2">
+      <button class="btn btn-primary" @onclick="Create">Crear</button>
+    </div>
+  </div>
 
-<input placeholder="Nombre" @bind="name" />
-<input type="number" placeholder="Duración (min)" @bind="duration" />
-<button @onclick="Create">Crear</button>
-
-<ul>
-@foreach (var s in items)
-{
-    <li>@s.Name — @s.DurationMin min — <small>@s.Id</small></li>
-}
-</ul>
+  <div class="servicios-list">
+    @foreach (var s in items)
+    {
+      <div class="servicio-card">
+        <div>
+          <div class="servicio-name">@s.Name</div>
+          <div class="servicio-meta">@s.DurationMin min</div>
+        </div>
+        <small class="label">@s.Id</small>
+      </div>
+    }
+  </div>
+</div>
 
 @code {
-    List<ServiceVm> items = new();
-    string name = ""; int duration = 30;
+  List<ServiceVm> items = new();
+  string name = ""; int duration = 30;
 
-    protected override async Task OnInitializedAsync() =>
-        items = await Api.GetAllAsync() ?? new();
+  protected override async Task OnInitializedAsync() =>
+      items = await Api.GetAllAsync() ?? new();
 
-    async Task Create()
-    {
-        if (string.IsNullOrWhiteSpace(name) || duration <= 0) return;
-        var created = await Api.CreateAsync(new(name, duration));
-        if (created is not null) items.Add(created);
-        name = ""; duration = 30;
-    }
+  async Task Create()
+  {
+      if (string.IsNullOrWhiteSpace(name) || duration <= 0) return;
+      var created = await Api.CreateAsync(new(name, duration));
+      if (created is not null) items.Add(created);
+      name = ""; duration = 30;
+  }
 }

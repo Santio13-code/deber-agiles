@@ -1,0 +1,24 @@
+.clientes-wrap { gap: 1rem; }
+
+.clientes-form { padding: 1rem; }
+
+.clientes-grid {
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: repeat(3, minmax(0,1fr));
+}
+@media (max-width: 900px){ .clientes-grid{ grid-template-columns: 1fr; } }
+
+.clientes-list { display: flex; flex-direction: column; gap: var(--gap); }
+
+.cliente-card {
+  padding: .9rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cliente-name { font-weight: 700; }
+.cliente-meta { color: var(--muted); font-size: .9rem; }
+
+.cliente-actions { display:flex; gap:.5rem; flex-wrap:wrap; }
