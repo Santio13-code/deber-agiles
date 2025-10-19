@@ -1,70 +1,109 @@
 @page "/agenda"
-@inject Booking.Blazor.Services.AppointmentClient Api
 @using Booking.Blazor.Models
-<PageTitle>Agenda</PageTitle>
-<h3>Agenda (Día)</h3>
+@using Booking.Blazor.Services
+@inject AppointmentClient Api
+@inject ClientsClient ClientsApi
+@inject ServicesClient ServicesApi
 
-<input type="date" @bind-value="day" />
-<button @onclick="Load">Cargar</button>
+<div class="agenda-wrap">
+  <div class="agenda-head">
+    <div class="hstack">
+      <div class="label">Día</div>
+      <input type="date" class="input" @bind-value="day" />
+    </div>
+    <button class="btn btn-outline" @onclick="Load">Cargar</button>
+  </div>
 
-<h4>Nueva cita</h4>
-<input placeholder="ClientId" @bind="clientIdStr" />
-<input placeholder="ServiceId" @bind="serviceIdStr" />
-<input type="datetime-local" @bind-value="startLocal" />
-<input placeholder="Notes" @bind="notes" />
-<button @onclick="Create">Crear</button>
+  <div class="agenda-form">
+    <div class="label mb-2">Nueva cita</div>
+    <div class="agenda-grid">
+      <select class="select" @bind="selectedClientId">
+        <option value="">-- Cliente --</option>
+        @foreach (var c in clients) { <option value="@c.Id">@c.Name</option> }
+      </select>
 
-<ul>
-@foreach (var a in items)
-{
-    <li>
-        @a.StartUtc.ToLocalTime(): @a.ClientId - @a.ServiceId - estado @a.Status
-        <button @onclick="() => Attend(a.Id)">Atender</button>
-        <button @onclick="() => Cancel(a.Id)">Cancelar</button>
-        <button @onclick="() => Reschedule(a.Id)">+30min</button>
-    </li>
-}
-</ul>
+      <select class="select" @bind="selectedServiceId">
+        <option value="">-- Servicio --</option>
+        @foreach (var s in services) { <option value="@s.Id">@s.Name (@s.DurationMin min)</option> }
+      </select>
+
+      <input type="datetime-local" class="input" @bind-value="startLocal" />
+      <input placeholder="Notes" class="input" @bind="notes" />
+      <button class="btn btn-primary" @onclick="@(async ()=> await Create())">Crear</button>
+    </div>
+  </div>
+
+  <div class="agenda-list">
+    @foreach (var a in items)
+    {
+      <div class="item">
+        <div>
+          <div class="item-time">@a.StartUtc.ToLocalTime().ToString("dd MMM yyyy • HH:mm")</div>
+          <div class="item-meta">
+              Cliente: @a.ClientName • Servicio: @a.ServiceName
+          </div>
+        </div>
+
+        <span class="badge @(a.Status switch { 0 => "pending", 1 => "attended", 2 => "cancelled", _ => "pending" })">
+          @(a.Status switch { 0 => "Pendiente", 1 => "Atendida", 2 => "Cancelada", _ => "Pendiente" })
+        </span>
+
+        <div class="item-actions">
+          <button class="btn btn-outline" @onclick="() => Attend(a.Id)">Atender</button>
+          <button class="btn btn-outline" @onclick="() => Cancel(a.Id)">Cancelar</button>
+          <button class="btn btn-primary" @onclick="() => Reschedule(a.Id)">+30min</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
 
 @code {
-    // listado
-    List<AppointmentVm> items = new();
+  List<AppointmentVm> items = new();
+  List<ClientVm> clients = new();
+  List<ServiceVm> services = new();
 
-    // bindings
-    DateTime day = DateTime.Today;            // para <input type="date">
-    DateTime startLocal = DateTime.Now;       // para <input type="datetime-local">
-    string clientIdStr = "";
-    string serviceIdStr = "";
-    string? notes;
+  DateTime day = DateTime.Today;
+  DateTime startLocal = DateTime.Now;
+  string? notes;
+  string? selectedClientId;
+  string? selectedServiceId;
 
-    protected override async Task OnInitializedAsync() => await Load();
+  protected override async Task OnInitializedAsync()
+  {
+      clients  = await ClientsApi.GetAllAsync()  ?? new();
+      services = await ServicesApi.GetAllAsync() ?? new();
+      await Load();
+  }
 
-    async Task Load()
+  async Task Load()
+  {
+      var dayUtc = DateTime.SpecifyKind(day.Date, DateTimeKind.Local).ToUniversalTime();
+      items = await Api.GetByDayAsync(dayUtc) ?? new();
+      // Enriquecer con nombres (usando los catálogos ya cargados)
+    foreach (var a in items)
     {
-        // la API espera UTC
-        var dayUtc = DateTime.SpecifyKind(day.Date, DateTimeKind.Local).ToUniversalTime();
-        items = await Api.GetByDayAsync(dayUtc) ?? new();
+        a.ClientName  = clients.FirstOrDefault(c => c.Id == a.ClientId)?.Name ?? "—";
+        a.ServiceName = services.FirstOrDefault(s => s.Id == a.ServiceId)?.Name ?? "—";
     }
+  }
 
-    async Task Create()
-    {
-        if (!Guid.TryParse(clientIdStr, out var client) || !Guid.TryParse(serviceIdStr, out var service))
-            return;
+  async Task Create()
+  {
+      if (!Guid.TryParse(selectedClientId, out var client)) return;
+      if (!Guid.TryParse(selectedServiceId, out var service)) return;
 
-        // el datetime-local está en hora local → convertir a UTC para la API
-        var startUtc = DateTime.SpecifyKind(startLocal, DateTimeKind.Local).ToUniversalTime();
+      var startUtc = DateTime.SpecifyKind(startLocal, DateTimeKind.Local).ToUniversalTime();
+      var created = await Api.CreateAsync(new CreateAppointmentVm(client, service, startUtc, notes));
+      if (created is not null) items.Add(created);
+  }
 
-        var created = await Api.CreateAsync(new CreateAppointmentVm(client, service, startUtc, notes));
-        if (created is not null) { items.Add(created); }
-    }
-
-    async Task Attend(Guid id)    { await Api.AttendAsync(id);   await Load(); }
-    async Task Cancel(Guid id)    { await Api.CancelAsync(id);   await Load(); }
-    async Task Reschedule(Guid id)
-    {
-        // ejemplo: mover 30 min desde ahora
-        var plus30Utc = DateTime.UtcNow.AddMinutes(30);
-        await Api.RescheduleAsync(id, plus30Utc);
-        await Load();
-    }
+  async Task Attend(Guid id) { await Api.AttendAsync(id); await Load(); }
+  async Task Cancel(Guid id) { await Api.CancelAsync(id); await Load(); }
+  async Task Reschedule(Guid id)
+  {
+      var plus30Utc = DateTime.UtcNow.AddMinutes(30);
+      await Api.RescheduleAsync(id, plus30Utc);
+      await Load();
+  }
 }

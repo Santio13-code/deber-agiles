@@ -9,3 +9,4 @@ C:\Users\retir\Desktop\Cuarto\New folder\Booking.Domain\obj\Debug\net9.0\Booking
 C:\Users\retir\Desktop\Cuarto\New folder\Booking.Domain\obj\Debug\net9.0\refint\Booking.Domain.dll
 C:\Users\retir\Desktop\Cuarto\New folder\Booking.Domain\obj\Debug\net9.0\Booking.Domain.pdb
 C:\Users\retir\Desktop\Cuarto\New folder\Booking.Domain\obj\Debug\net9.0\ref\Booking.Domain.dll
+C:\Users\retir\Desktop\Cuarto\New folder\Booking.Domain\obj\Debug\net9.0\Booking.Domain.sourcelink.json

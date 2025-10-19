@@ -1,0 +1,46 @@
+@page "/clientes"
+@inject Booking.Blazor.Services.ClientsClient Api
+@using Booking.Blazor.Models
+
+<div class="clientes-wrap">
+  <div class="clientes-form">
+    <div class="label mb-2">Nuevo cliente</div>
+    <div class="grid clientes-grid">
+      <input class="input" placeholder="Nombre" @bind="name" />
+      <input class="input" placeholder="Email"  @bind="email" />
+      <input class="input" placeholder="Phone"  @bind="phone" />
+    </div>
+    <div class="mt-2">
+      <button class="btn btn-primary" @onclick="Create">Crear</button>
+    </div>
+  </div>
+
+  <div class="clientes-list">
+    @foreach (var c in items)
+    {
+      <div class="cliente-card">
+        <div>
+          <div class="cliente-name">@c.Name</div>
+          <div class="cliente-meta">@c.Email • @c.Phone</div>
+        </div>
+        <small class="label">@c.Id</small>
+      </div>
+    }
+  </div>
+</div>
+
+@code {
+  List<ClientVm> items = new();
+  string name = ""; string? email; string? phone;
+
+  protected override async Task OnInitializedAsync() =>
+      items = await Api.GetAllAsync() ?? new();
+
+  async Task Create()
+  {
+      if (string.IsNullOrWhiteSpace(name)) return;
+      var created = await Api.CreateAsync(new(name, email, phone));
+      if (created is not null) items.Add(created);
+      name = ""; email = phone = null;
+  }
+}

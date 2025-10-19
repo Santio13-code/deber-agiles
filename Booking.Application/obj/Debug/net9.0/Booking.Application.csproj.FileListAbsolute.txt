@@ -13,3 +13,4 @@ C:\Users\retir\Desktop\Cuarto\New folder\Booking.Application\obj\Debug\net9.0\Bo
 C:\Users\retir\Desktop\Cuarto\New folder\Booking.Application\obj\Debug\net9.0\refint\Booking.Application.dll
 C:\Users\retir\Desktop\Cuarto\New folder\Booking.Application\obj\Debug\net9.0\Booking.Application.pdb
 C:\Users\retir\Desktop\Cuarto\New folder\Booking.Application\obj\Debug\net9.0\ref\Booking.Application.dll
+C:\Users\retir\Desktop\Cuarto\New folder\Booking.Application\obj\Debug\net9.0\Booking.Application.sourcelink.json

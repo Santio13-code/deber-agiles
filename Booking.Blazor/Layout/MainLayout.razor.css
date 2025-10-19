@@ -75,3 +75,14 @@ main {
         padding-right: 1.5rem !important;
     }
 }
+
+.top-row {
+  background: linear-gradient(180deg, rgba(17,24,39,.85), rgba(17,24,39,.55));
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border);
+}
+.sidebar {
+  background: linear-gradient(180deg, #0a0f1c 0%, #0b1324 100%);
+  border-right: 1px solid var(--border);
+}
+
