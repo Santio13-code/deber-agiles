@@ -130,7 +130,6 @@ app.MapGet("/api/appointments/history", async (AppDbContext db, int page = 1, in
     return Results.Ok(new { total, page, size, data });
 });
 
-
 app.Run();
 record ClientDto(string Name, string? Email, string? Phone);
 record ServiceDto(string Name, int DurationMin);
