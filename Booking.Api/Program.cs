@@ -96,8 +96,52 @@ app.MapPost("/api/services", async (AppDbContext db, ServiceDto dto) =>
     return Results.Created($"/api/services/{s.Id}", new { s.Id, s.Name, s.DurationMin, s.Active });
 });
 
+// DTO para el historial
+
+
+// GET /api/appointments/history?page=1&size=50
+app.MapGet("/api/appointments/history", async (AppDbContext db, int page = 1, int size = 50) =>
+{
+    if (page < 1) page = 1;
+    if (size < 1 || size > 200) size = 50;
+
+    var baseQuery =
+        from a in db.Appointments.AsNoTracking()
+        join c in db.Clients.AsNoTracking()  on a.ClientId  equals c.Id
+        join s in db.Services.AsNoTracking() on a.ServiceId equals s.Id
+        orderby a.StartUtc descending
+        select new AppointmentHistoryVm(
+            a.Id,
+            a.StartUtc,
+            (byte)a.Status,      // ajusta el tipo si tu Status es enum distinto
+            a.Notes,
+            a.ClientId,
+            c.Name,              // <- nombre del cliente
+            a.ServiceId,
+            s.Name               // <- nombre del servicio
+        );
+
+    var total = await baseQuery.CountAsync();
+    var data  = await baseQuery
+        .Skip((page - 1) * size)
+        .Take(size)
+        .ToListAsync();
+
+    return Results.Ok(new { total, page, size, data });
+});
 
 
 app.Run();
 record ClientDto(string Name, string? Email, string? Phone);
 record ServiceDto(string Name, int DurationMin);
+
+public record AppointmentHistoryVm(
+    Guid Id,
+    DateTime StartUtc,
+    byte Status,
+    string? Notes,
+    Guid ClientId,
+    string ClientName,
+    Guid ServiceId,
+    string ServiceName
+);
