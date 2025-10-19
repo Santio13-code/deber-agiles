@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Booking.Blazor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b36c4eb2f79e92a24d1914eb1edb9ed016f7538c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+70c1369ddeda5738edd1cd1fd68031b9f41ffe06")]
 [assembly: System.Reflection.AssemblyProductAttribute("Booking.Blazor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Booking.Blazor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
