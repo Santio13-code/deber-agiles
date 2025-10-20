@@ -1,0 +1,38 @@
+.about-wrap { display:flex; flex-direction:column; gap:1.25rem; padding-block:1rem; }
+.card { background: var(--card, #131a2a); border: 1px solid var(--border, rgba(255,255,255,.06));
+        border-radius: 16px; padding: 1.25rem 1.25rem; box-shadow: 0 10px 20px rgba(0,0,0,.15); }
+
+.hero { padding: 1.75rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.hero-text h1 { margin: 0 0 .5rem; color: var(--txt, #e8eefc); }
+.lead { color: var(--muted, #aab3c5); margin:0; max-width: 60ch; }
+.hero-actions { margin-top: 1rem; display:flex; gap:.5rem; flex-wrap:wrap; }
+
+.grid { display:grid; gap:1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 900px){ .grid { grid-template-columns: 1fr; } }
+
+h2 { margin:0 0 .75rem; color: var(--txt, #e8eefc); }
+h3.mt { margin-top: .75rem; }
+
+.stack, .tech, .list { margin:0; padding:0; list-style:none; display:grid; gap:.4rem; }
+.list li, .stack li, .tech li { color: var(--txt, #e8eefc); }
+.muted { color: var(--muted, #9aa7bd); }
+.small { font-size: .9rem; }
+
+.hint { margin-top:.75rem; display:flex; align-items:center; gap:.5rem; color: var(--muted); }
+.dot { width:.75rem; height:.75rem; border-radius:999px; display:inline-block; }
+.dot.domain { background:#59a5f5; }   /* Domain */
+.dot.app    { background:#7dd3fc; }   /* Application */
+.dot.infra  { background:#9ca3af; }   /* Infrastructure */
+.dot.api    { background:#a78bfa; }   /* API */
+.dot.ui     { background:#60a5fa; }   /* UI */
+
+.about-footer { display:flex; justify-content:space-between; align-items:center; padding: .5rem .25rem; }
+@media (max-width: 640px){ .about-footer { flex-direction:column; gap:.25rem; } }
+
+/* Botones mínimos para encajar con tu estilo global */
+.btn { padding:.55rem .9rem; border-radius:10px; border:1px solid var(--border, rgba(255,255,255,.08));
+       background:transparent; color:var(--txt, #e8eefc); cursor:pointer; }
+.btn:hover { background: rgba(255,255,255,.05); }
+.btn-primary { background:#3b82f6; border-color:#3b82f6; color:white; }
+.btn-primary:hover { filter:brightness(1.05); }
+.btn-outline { background:transparent; }

@@ -25,5 +25,8 @@ namespace Booking.Blazor.Services
 
         public Task<HttpResponseMessage> AttendAsync(Guid id)
             => _http.PutAsync($"/api/appointments/{id}/attend", null);
+
+        public Task<PagedResult<AppointmentHistoryVm>?> GetHistoryAsync(int page = 1, int size = 50)
+        => _http.GetFromJsonAsync<PagedResult<AppointmentHistoryVm>>($"/api/appointments/history?page={page}&size={size}");
     }
 }

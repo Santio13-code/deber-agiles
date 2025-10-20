@@ -1,0 +1,104 @@
+@page "/historial"
+@using Booking.Blazor.Models
+@using Booking.Blazor.Services
+@inject AppointmentClient Api
+
+<div class="container history-wrap">
+  <div class="card history-head">
+    <h2>Historial de citas</h2>
+    <div class="label">Total cargado: @all.Count de @total</div>
+  </div>
+
+  <div class="history-columns">
+    <section class="col">
+      <h3>Pendientes</h3>
+      @if (pending.Count == 0) { <div class="empty">Sin pendientes</div>; }
+      @foreach (var a in pending)
+      {
+        <div class="card row">
+          <div class="row-main">
+            <div class="row-time">@a.StartUtc.ToLocalTime()</div>
+            <div class="row-meta">@a.ClientName • @a.ServiceName</div>
+            @if (!string.IsNullOrWhiteSpace(a.Notes))
+            {
+              <div class="row-notes">@a.Notes</div>
+            }
+          </div>
+          <span class="badge pending">Pendiente</span>
+        </div>
+      }
+    </section>
+
+    <section class="col">
+      <h3>Atendidas</h3>
+      @if (attended.Count == 0) { <div class="empty">Sin atendidas</div>; }
+      @foreach (var a in attended)
+      {
+        <div class="card row">
+          <div class="row-main">
+            <div class="row-time">@a.StartUtc.ToLocalTime()</div>
+            <div class="row-meta">@a.ClientName • @a.ServiceName</div>
+            @if (!string.IsNullOrWhiteSpace(a.Notes))
+            {
+              <div class="row-notes">@a.Notes</div>
+            }
+          </div>
+          <span class="badge attended">Atendida</span>
+        </div>
+      }
+    </section>
+
+    <section class="col">
+      <h3>Canceladas</h3>
+      @if (cancelled.Count == 0) { <div class="empty">Sin canceladas</div>; }
+      @foreach (var a in cancelled)
+      {
+        <div class="card row">
+          <div class="row-main">
+            <div class="row-time">@a.StartUtc.ToLocalTime()</div>
+            <div class="row-meta">@a.ClientName • @a.ServiceName</div>
+            @if (!string.IsNullOrWhiteSpace(a.Notes))
+            {
+              <div class="row-notes">@a.Notes</div>
+            }
+          </div>
+          <span class="badge cancelled">Cancelada</span>
+        </div>
+      }
+    </section>
+  </div>
+
+  <div class="history-actions">
+    <button class="btn btn-outline" disabled="@(all.Count >= total)" @onclick="LoadMore">Cargar más</button>
+  </div>
+</div>
+
+@code {
+  // 0=pending, 1=attended, 2=cancelled (ajusta a tu enum)
+  const byte Pending = 0, Attended = 1, Cancelled = 2;
+
+  List<AppointmentHistoryVm> all = new();
+  List<AppointmentHistoryVm> pending   => all.Where(x => x.Status == Pending).ToList();
+  List<AppointmentHistoryVm> attended  => all.Where(x => x.Status == Attended).ToList();
+  List<AppointmentHistoryVm> cancelled => all.Where(x => x.Status == Cancelled).ToList();
+
+  int page = 1, size = 50, total = 0;
+
+  protected override async Task OnInitializedAsync() => await Load();
+
+  async Task Load()
+  {
+    var res = await Api.GetHistoryAsync(page, size);
+    if (res is null) return;
+    total = res.Total;
+    all.AddRange(res.Data);
+    StateHasChanged();
+  }
+
+  async Task LoadMore()
+  {
+    if (all.Count >= total) return;
+    page++;
+    await Load();
+  }
+}
